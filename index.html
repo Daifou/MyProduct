@@ -1078,7 +1078,7 @@
             }
 
             // =========================================================
-            // --- Form Submission & Purchase Tracking Logic ---
+            // --- Form Submission & Telegram Integration ---
             // =========================================================
             const orderForm = document.getElementById('order-form');
             const mainContent = document.getElementById('main-content');
@@ -1088,22 +1088,77 @@
                 orderForm.addEventListener('submit', function(event) {
                     event.preventDefault(); // Stop the form from submitting the traditional way
 
-                    // Fire Meta Pixel Purchase Event
-                    if (typeof fbq === 'function') {
-                        fbq('track', 'Purchase', {
-                            value: 3150.00,
-                            currency: 'DZD',
-                            content_name: 'Smart Watch',
-                        });
-                    } else {
-                        console.log("Meta Pixel function (fbq) not found. Purchase event not tracked.");
-                    }
+                    // --- Collect Form Data ---
+                    const fullName = document.getElementById('full-name').value;
+                    const phoneNumber = document.getElementById('phone-number').value;
+                    const stateCity = document.getElementById('state-city').value;
+                    const quantity = document.getElementById('quantity').value;
+                    
+                    // --- Telegram API Details ---
+                    const botToken = '7592999784:AAFPr9m8IP2W1uosUrbZw6iT1xGOW5itkQ8';
+                    const chatId = '1407742256';
 
-                    // Hide the main content and show the thank you page
-                    document.body.style.overflow = 'hidden'; // Prevent scrolling background
-                    mainContent.style.display = 'none';
-                    thankYouPage.classList.remove('hidden');
-                    thankYouPage.style.display = 'flex';
+                    // --- Format the Message ---
+                    // Using HTML tags for bolding in Telegram
+                    let message = `<b>New Order Received!</b>\n\n`;
+                    message += `<b>Full Name:</b> ${fullName}\n`;
+                    message += `<b>Phone Number:</b> ${phoneNumber}\n`;
+                    message += `<b>Location:</b> ${stateCity}\n`;
+                    message += `<b>Quantity:</b> ${quantity}`;
+
+                    const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                    
+                    // --- Disable button to prevent multiple submissions ---
+                    const submitButton = orderForm.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '... جاري الإرسال'; // "Sending..." in Arabic
+
+                    // --- Send data to Telegram using Fetch API ---
+                    fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'HTML',
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            // Show success alert as requested
+                            alert('Message sent!');
+
+                            // Fire Meta Pixel Purchase Event
+                            if (typeof fbq === 'function') {
+                                fbq('track', 'Purchase', {
+                                    value: 3150.00,
+                                    currency: 'DZD',
+                                    content_name: 'Smart Watch',
+                                });
+                            }
+
+                            // Show the thank you page (existing functionality)
+                            document.body.style.overflow = 'hidden';
+                            mainContent.style.display = 'none';
+                            thankYouPage.classList.remove('hidden');
+                            thankYouPage.style.display = 'flex';
+                        } else {
+                            // Handle Telegram API errors
+                            alert(`Error: ${data.description}`);
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = 'إشتري المنتج الأن'; // Reset button text
+                        }
+                    })
+                    .catch(error => {
+                        // Handle network errors
+                        console.error('Error sending message:', error);
+                        alert('An error occurred. Please check your connection and try again.');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'إشتري المنتج الأن'; // Reset button text
+                    });
                 });
             }
 
@@ -1135,4 +1190,3 @@
     </script>
 </body>
 </html>
-
