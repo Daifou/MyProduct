@@ -389,23 +389,51 @@
         .form-input { width: 100%; padding: 0.75rem; border: 3px solid var(--text-dark); border-radius: 0.5rem; font-size: 1rem; font-weight: 700; text-align: right; direction: rtl; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
         .form-input:focus { border-color: var(--color-cta-pink); box-shadow: 0 0 0 2px var(--color-cta-pink); }
         
-        /* --- UPDATED: 3D Submit Button with Shadow Stroke --- */
+        
+        /* ============================================== */
+        /* --- NEW: High-Conversion CTA Button Styles --- */
+        /* ============================================== */
+        @keyframes pulse-shadow {
+            0%, 100% {
+                box-shadow: 6px 6px 0 var(--text-dark);
+            }
+            50% {
+                box-shadow: 8px 8px 0 var(--text-dark);
+            }
+        }
+
         .form-submit-btn {
             width: 100%;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 1.75rem; /* Slightly larger font */
             padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: var(--text-dark);
+            border-radius: 0.75rem; /* More rounded */
+            /* Vibrant Gradient Background */
+            background: linear-gradient(145deg, #00d27a, #00a86b); 
             color: white;
             cursor: pointer;
-            border: 3px solid var(--text-dark);
-            box-shadow: 4px 4px 0px white, 7px 7px 0px var(--text-dark); /* White shadow with black stroke */
-            transition: transform 0.1s, box-shadow 0.1s;
+            border: 4px solid var(--text-dark);
+            /* Stronger 3D shadow and pulsing animation */
+            box-shadow: 6px 6px 0 var(--text-dark);
+            animation: pulse-shadow 2s infinite ease-in-out;
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem; /* Space between text and icon */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Text shadow for depth */
         }
+
+        .form-submit-btn:hover {
+            animation-play-state: paused; /* Pause pulsing on hover */
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+
         .form-submit-btn:active {
-            transform: translate(3px, 3px);
-            box-shadow: 2px 2px 0px white, 3px 3px 0px var(--text-dark); /* Adjusted active state */
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0 var(--text-dark);
+            animation: none; /* Remove animation on click */
         }
         
         .price-display { font-size: 1.25rem; font-weight: 900; color: var(--text-dark); padding: 0.5rem 0.75rem; border-radius: 0.5rem; background-color: var(--color-title-lime); border: 3px solid var(--text-dark); text-align: center; }
@@ -571,7 +599,7 @@
 
                             <!-- Option 3: رمادي (Gray) -->
                             <div class="selector-box-flavor">
-                                <span class="dot" style="background-color: #A0A0A0);"></span> رمادي
+                                <span class="dot" style="background-color: gray;"></span> رمادي
                             </div>
                             
                             <!-- Option 4: وردي (Pink) -->
@@ -693,7 +721,9 @@
                                 
                                 <!-- Submit Button -->
                                 <button type="submit" class="form-submit-btn">
-                                    إشتري المنتج الأن
+                                    <span>إطلب الآن</span>
+                                    <!-- Arrow Icon pointing left for RTL -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                                 </button>
                             </form>
 
@@ -1110,6 +1140,7 @@
                     
                     // --- Disable button to prevent multiple submissions ---
                     const submitButton = orderForm.querySelector('button[type="submit"]');
+                    const newButtonHTML = submitButton.innerHTML; // Store the new button content
                     submitButton.disabled = true;
                     submitButton.innerHTML = '... جاري الإرسال'; // "Sending..." in Arabic
 
@@ -1149,7 +1180,7 @@
                             // Handle Telegram API errors
                             alert(`Error: ${data.description}`);
                             submitButton.disabled = false;
-                            submitButton.innerHTML = 'إشتري المنتج الأن'; // Reset button text
+                            submitButton.innerHTML = newButtonHTML; // Reset button text
                         }
                     })
                     .catch(error => {
@@ -1157,7 +1188,7 @@
                         console.error('Error sending message:', error);
                         alert('An error occurred. Please check your connection and try again.');
                         submitButton.disabled = false;
-                        submitButton.innerHTML = 'إشتري المنتج الأن'; // Reset button text
+                        submitButton.innerHTML = newButtonHTML; // Reset button text
                     });
                 });
             }
@@ -1190,3 +1221,4 @@
     </script>
 </body>
 </html>
+
